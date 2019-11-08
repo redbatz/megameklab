@@ -489,7 +489,13 @@ public class PrintMech extends PrintEntity {
         if (lines > 20) {
             fontSize = FONT_SIZE_VSMALL;
         }
-        
+
+        /* Print each entry in the equipment map. An entry that does not fit into the allocated space
+        * will wrap to the next line. This is tracked using the repurposed lines local variable. Some
+        * entries are already given multiple lines (such as missile launchers with Artemis), which
+        * will be handled in the inner loop. We need to compare the two to make sure we don't add
+        * extra linefeeds. This algorithm works on the assumption that presplitting values into multiple
+        * rows ensures that they will fit and not need to wrap. */
         for (Integer loc : eqMap.keySet()) {
             for (RecordSheetEquipmentLine line : eqMap.get(loc).keySet()) {
                 for (int row = 0; row < line.nRows(); row++) {
@@ -510,7 +516,10 @@ public class PrintMech extends PrintEntity {
                     addTextElement(canvas, shortX, currY, line.getShortField(row), fontSize, "middle", "normal");
                     addTextElement(canvas, medX, currY, line.getMediumField(row), fontSize, "middle", "normal");
                     addTextElement(canvas, longX, currY, line.getLongField(row), fontSize, "middle", "normal");
-                    currY += lineHeight * lines;
+                    currY += lineHeight;
+                }
+                if (lines > line.nRows()) {
+                    currY += lineHeight * (lines - line.nRows());
                 }
             }
         }
