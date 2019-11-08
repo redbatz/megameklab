@@ -440,7 +440,7 @@ public class PrintMech extends PrintEntity {
         int viewY = (int)bbox.getY();
         
         int qtyX = (int) Math.round(viewX + viewWidth * 0.037);
-        int nameX = (int) Math.round(viewX + viewWidth * 0.08);
+        int nameX = (int) Math.round(viewX + viewWidth * 0.075);
         int locX = (int) Math.round(viewX + viewWidth * 0.41);
         int heatX = (int) Math.round(viewX + viewWidth * 0.48);
         int dmgX = (int) Math.round(viewX + viewWidth * 0.53);
