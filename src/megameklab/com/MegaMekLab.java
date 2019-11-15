@@ -46,7 +46,7 @@ import megameklab.com.util.CConfig;
 import megameklab.com.util.UnitUtil;
 
 public class MegaMekLab {
-    public static final String VERSION = "0.47.2-SNAPSHOT";
+    public static final String VERSION = "0.47.2";
 
     private static final String FILENAME_BT_CLASSIC_FONT = "btclassic/BTLogo_old.ttf"; //$NON-NLS-1$
 
@@ -63,6 +63,12 @@ public class MegaMekLab {
             Font btFont = Font.createFont(Font.TRUETYPE_FONT, btFontFile);
             System.out.println("Loaded Font: " + btFont.getName());
             ge.registerFont(btFont);
+            File f = new MegaMekFile(Configuration.fontsDir(), "Eurosti.ttf").getFile();
+            Font font = Font.createFont(Font.TRUETYPE_FONT, f);
+            ge.registerFont(font);
+            f = new MegaMekFile(Configuration.fontsDir(), "Eurostib.ttf").getFile();
+            font = Font.createFont(Font.TRUETYPE_FONT, f);
+            ge.registerFont(font);
         } catch (IOException | FontFormatException e) {
             System.out.println("Error Registering BT Classic Font! Error: " + e.getMessage());
         }
