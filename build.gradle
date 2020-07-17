@@ -7,8 +7,8 @@ plugins {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-group = 'org.megamek'
-version = '0.47.8-SNAPSHOT'
+group = 'org.redbat.roguetech.megamek'
+version = '0.0.1-SNAPSHOT'
 
 sourceSets {
     main {
@@ -22,8 +22,8 @@ sourceSets {
 }
 
 ext {
-    mmlGitRoot = 'https://github.com/MegaMek/megameklab.git'
-    mmGitRoot = 'https://github.com/MegaMek/megamek.git'
+    mmlGitRoot = 'https://github.com/redbatz/megameklab.git'
+    mmGitRoot = 'https://github.com/redbatz/megamek.git'
     // Work on MML or MHQ sometimes requires changes in MM as well. The maven publishing tasks use
     // these properties to append the branch name to the artifact id if the repo is not in the master
     // branch, making it available separately to the child project. 
@@ -34,7 +34,7 @@ ext {
     mmBranch = 'master'
     mmBranchTag = mmBranch.equals('master')? '' : '-' + mmBranch
     
-    mmDir = '../megamek'
+    mmDir = '../roguetech-mm'
 }
 
 // A settings_local.gradle file can be used to override any of the above options. For instance,
@@ -59,8 +59,9 @@ configurations {
 }
 
 dependencies {
-    implementation "org.megamek:megamek${mmBranchTag}:${version}"
-    
+    implementation "org.redbat.roguetech.megamek:megamek${mmBranchTag}:${version}"
+
+    implementation 'org.apache.commons:commons-lang3:3.10'
     implementation 'org.apache.xmlgraphics:batik-dom:1.10'
     implementation 'org.apache.xmlgraphics:batik-codec:1.10'
     implementation 'org.apache.xmlgraphics:batik-rasterizer:1.10'
@@ -76,7 +77,7 @@ dependencies {
     jarbundler 'com.ultramixer.jarbundler:jarbundler-core:3.3.0'
 }
 
-mainClassName = 'megameklab.com.MegaMekLab'
+mainClassName = 'org.redbat.roguetech.megameklab.MegaMekLab'
 
 ext {
     jvmOptions = ['-Xmx1024m']
@@ -118,7 +119,7 @@ task compileMM (type: GradleBuild) {
 }
 
 task mmJar (type: Jar, dependsOn: compileMM) {
-    archiveFileName = "MegaMek.jar"
+    archiveFileName = "RoguetechMegaMek.jar"
     from "${mmDir}/megamek/build/classes/java/main"
     from "${mmDir}/megamek/build/resources/main"
     manifest {
@@ -206,7 +207,7 @@ task createStartScripts (type: CreateStartScripts) {
 }
 
 task createOSXBundle (dependsOn: jar) {
-    ext.appName = 'MegaMekLab'
+    ext.appName = 'RoguetechMegaMekLab'
     // The jar directory is hard coded into jarbundler and has no public accessor
     ext.jarSubdir = "${appName}.app/Contents/Resources/Java"
     doLast {
@@ -216,10 +217,10 @@ task createOSXBundle (dependsOn: jar) {
             classpath: configurations.jarbundler.asPath)
         ant.jarbundler (
                 name: ext.appName,
-                shortName: 'MegaMekLab',
+                shortName: 'RoguetechMML',
                 build: rootProject.version,
                 version: rootProject.version.replace('-SNAPSHOT', ''),
-                bundleid: 'org.megamek.MegaMekLab',
+                bundleid: 'org.redbat.roguetech.megamek.MegaMekLab',
                 mainClass: project.mainClassName,
                 stubfile: osxApplicationStub,
                 dir: osxBundleDir,
@@ -261,7 +262,7 @@ distributions {
     }
     // Creates tasks which package distribution with MM jar wrapped in Windows executable
     windows {
-        baseName = 'megameklab-windows'
+        baseName = 'roguetech-megameklab-windows'
         contents {
             from ("${buildDir}/launch4j") {
                 include '*.exe'
@@ -279,7 +280,7 @@ distributions {
         }
     }
     mac {
-        baseName = 'megameklab-mac'
+        baseName = 'roguetech-megameklab-mac'
         contents {
             from osxBundleDir
             from fileStagingDir
@@ -427,37 +428,37 @@ task javadocJar(type: Jar) {
     archiveClassifier = 'javadoc'
 }
 
-publishing {
-    publications {
-        publishMMLibrary(MavenPublication) {
-            artifactId = "megameklab${mmBranchTag}"
-            from components.java
-            artifact sourcesJar
-// Javadoc has errors
-//            artifact javadocJar
-
-            pom {
-                name = "MegaMekLab"
-                description = "MegaMekLab"
-                url = "http://megamek.org"
-                licenses {
-                    license {
-                        name = "GNU General Public License, version 2"
-                        url = "https://www.gnu.org/licenses/gpl-2.0.html"
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            url uri(mavenPublishDir)
-        }
-    }
-}
-
-task cleanPublishingDir (type: Delete) {
-    delete = mavenPublishDir
-}
-
-publishPublishMMLibraryPublicationToMavenRepository.dependsOn cleanPublishingDir
+//publishing {
+//    publications {
+//        publishMMLibrary(MavenPublication) {
+//            artifactId = "megameklab${mmBranchTag}"
+//            from components.java
+//            artifact sourcesJar
+//// Javadoc has errors
+////            artifact javadocJar
+//
+//            pom {
+//                name = "MegaMekLab"
+//                description = "MegaMekLab"
+//                url = "http://megamek.org"
+//                licenses {
+//                    license {
+//                        name = "GNU General Public License, version 2"
+//                        url = "https://www.gnu.org/licenses/gpl-2.0.html"
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    repositories {
+//        maven {
+//            url uri(mavenPublishDir)
+//        }
+//    }
+//}
+//
+//task cleanPublishingDir (type: Delete) {
+//    delete = mavenPublishDir
+//}
+//
+//publishPublishMMLibraryPublicationToMavenRepository.dependsOn cleanPublishingDir
