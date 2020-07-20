@@ -16,6 +16,7 @@
 
 package org.redbat.roguetech.megameklab.ui;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megamek.common.Entity;
 import org.redbat.roguetech.megamek.common.preference.PreferenceManager;
 import org.redbat.roguetech.megameklab.util.CConfig;
@@ -30,6 +31,7 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+@Slf4j
 public abstract class MegaMekLabMainUI extends JFrame implements
         RefreshListener, EntitySource {
 
@@ -56,27 +58,30 @@ public abstract class MegaMekLabMainUI extends JFrame implements
     }
 
     protected void finishSetup() {
-        
-        /* menu bar */
-        menubarcreator = new MenuBarCreator(this);
-        setJMenuBar(menubarcreator);
-        
-        /* scroll bar */
-        scroll.setHorizontalScrollBarPolicy(
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scroll.setVerticalScrollBarPolicy(
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scroll.getVerticalScrollBar().setUnitIncrement(20);
-        scroll.setViewportView(masterPanel);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
-        this.add(scroll);
+        try {
+            /* menu bar */
+            menubarcreator = new MenuBarCreator(this);
+            setJMenuBar(menubarcreator);
 
-        /* load tabs, resize and make visible */
-        reloadTabs();
-        setSizeAndLocation();
-        setVisible(true);
-        repaint();
-        refreshAll();
+            /* scroll bar */
+            scroll.setHorizontalScrollBarPolicy(
+                    ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            scroll.setVerticalScrollBarPolicy(
+                    ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scroll.getVerticalScrollBar().setUnitIncrement(20);
+            scroll.setViewportView(masterPanel);
+            scroll.setBorder(BorderFactory.createEmptyBorder());
+            this.add(scroll);
+
+            /* load tabs, resize and make visible */
+            reloadTabs();
+            setSizeAndLocation();
+            setVisible(true);
+            repaint();
+            refreshAll();
+        } catch (Exception e) {
+            log.error("Setup error", e);
+        }
     }
     
     protected void setSizeAndLocation() {

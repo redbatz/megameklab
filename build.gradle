@@ -51,6 +51,7 @@ repositories {
     maven {
         url 'https://github.com/MegaMek/mavenrepo/raw/master'
     }
+    mavenCentral()
     jcenter()
 }
 
@@ -60,8 +61,11 @@ configurations {
 
 dependencies {
     implementation "org.redbat.roguetech.megamek:megamek${mmBranchTag}:${version}"
-
     implementation 'org.apache.commons:commons-lang3:3.10'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.11.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'com.google.guava:guava:29.0-jre'
     implementation 'org.apache.xmlgraphics:batik-dom:1.10'
     implementation 'org.apache.xmlgraphics:batik-codec:1.10'
     implementation 'org.apache.xmlgraphics:batik-rasterizer:1.10'
@@ -73,6 +77,11 @@ dependencies {
     implementation 'org.apache.xmlgraphics:batik-svggen:1.10'
     implementation 'org.apache.xmlgraphics:fop:2.3'
     implementation 'org.apache.pdfbox:pdfbox:2.0.19'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     jarbundler 'com.ultramixer.jarbundler:jarbundler-core:3.3.0'
 }

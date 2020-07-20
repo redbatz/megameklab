@@ -16,6 +16,7 @@
 
 package org.redbat.roguetech.megameklab.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megamek.client.ui.swing.UnitLoadingDialog;
 import org.redbat.roguetech.megamek.client.ui.swing.UnitSelectorDialog;
 import org.redbat.roguetech.megamek.common.*;
@@ -44,6 +45,7 @@ import java.io.FilenameFilter;
 import java.io.PrintStream;
 import java.util.ResourceBundle;
 
+@Slf4j
 public class MenuBarCreator extends JMenuBar implements ClipboardOwner {
 
     private static final long serialVersionUID = -3998342610654551481L;
@@ -719,7 +721,7 @@ public class MenuBarCreator extends JMenuBar implements ClipboardOwner {
                 BLKFile.encode(unitFile.getAbsolutePath(), tempEntity);
             }
         } catch (Exception ex) {
-            MegaMekLab.getLogger().error(getClass(), "jMenuInsertImageFile_actionPerformed()", ex);
+            log.error("Error", ex);
         }
     }
 
@@ -923,9 +925,7 @@ public class MenuBarCreator extends JMenuBar implements ClipboardOwner {
         } else if (parentFrame.getEntity() instanceof Protomech) {
             parentFrame.createNewUnit(Entity.ETYPE_PROTOMECH);
         } else {
-            MegaMekLab.getLogger().warning(getClass(),
-            "jMenuResetEntity_actionPerformed(ActionEvent)",
-                "util.MenuBarCreator: Received unknown entityType!");
+            log.warn("util.MenuBarCreator: Received unknown entityType!");
         }
         setVisible(true);
         reload();
@@ -1094,7 +1094,7 @@ public class MenuBarCreator extends JMenuBar implements ClipboardOwner {
             p.close();
             out.close();
         } catch (Exception ex) {
-            MegaMekLab.getLogger().error(getClass(), "exportSummary(boolean)", ex);
+            log.error("Error", ex);
         }
     }
 

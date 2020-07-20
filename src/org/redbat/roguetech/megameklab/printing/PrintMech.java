@@ -13,6 +13,7 @@
  */
 package org.redbat.roguetech.megameklab.printing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.dom.util.SAXDocumentFactory;
 import org.apache.batik.util.SVGConstants;
@@ -41,6 +42,7 @@ import java.util.List;
  * @author Neoancient
  *
  */
+@Slf4j
 public class PrintMech extends PrintEntity {
     
     /**
@@ -160,8 +162,7 @@ public class PrintMech extends PrintEntity {
             if (si instanceof SVGRectElement) {
                 drawSIPips((SVGRectElement) si);
             } else {
-                MegaMekLab.getLogger().error(getClass(), "PrintImage(Graphics2D, PageFormat, int)",
-                        "Region siPips does not exist in template or is not a <rect>");
+                log.error("Region siPips does not exist in template or is not a <rect>");
             }
         }
         
@@ -319,13 +320,11 @@ public class PrintMech extends PrintEntity {
             SAXDocumentFactory df = new SAXDocumentFactory(impl, parser);
             doc = df.createDocument(f.toURI().toASCIIString(), is);
         } catch (Exception e) {
-            MegaMekLab.getLogger().error(PrintRecordSheet.class, METHOD_NAME,
-                    "Failed to open pip SVG file! Path: " + f.getName());
+            log.error("Failed to open pip SVG file! Path: {}", f.getName());
             return null;
         }
         if (null == doc) {
-            MegaMekLab.getLogger().error(PrintRecordSheet.class, METHOD_NAME,
-                    "Failed to open pip SVG file! Path: " + f.getName());
+            log.error("Failed to open pip SVG file! Path: {}", f.getName());
             return null;
         }
         return doc.getElementsByTagName(SVGConstants.SVG_PATH_TAG);

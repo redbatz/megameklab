@@ -206,10 +206,6 @@ public class ArmorAllocationView extends BuildView implements
                 } else {
                     locView.setPointsRear(0);
                 }
-                if (en.hasETypeFlag(Entity.ETYPE_SMALL_CRAFT)
-                        || en.hasETypeFlag(Entity.ETYPE_JUMPSHIP)) {
-                    locView.setMinimum((int) (UnitUtil.getSIBonusArmorPoints(en) / locationViews.size()));
-                }
                 if (showPatchwork) {
                     double pointsPerTon = UnitUtil.getArmorPointsPerTon(en, en.getArmorType(location),  en.getArmorTechLevel(location));
                     double points = en.getArmor(location, false);
@@ -226,8 +222,7 @@ public class ArmorAllocationView extends BuildView implements
             }
         }
         int maxArmorPoints = UnitUtil.getMaximumArmorPoints(en);
-        int raw = (int) (UnitUtil.getRawArmorPoints(en, en.getLabArmorTonnage())
-                + UnitUtil.getSIBonusArmorPoints(en));
+        int raw = (int) (UnitUtil.getRawArmorPoints(en, en.getLabArmorTonnage()));
         int currentPoints = en.getTotalOArmor();
         int armorPoints = 0;
         if (showPatchwork) {

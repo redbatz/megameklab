@@ -13,6 +13,7 @@
  */
 package org.redbat.roguetech.megameklab.printing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megameklab.MegaMekLab;
 
 import javax.print.attribute.PrintRequestAttributeSet;
@@ -29,6 +30,7 @@ import java.util.concurrent.ExecutionException;
  * @author Neoancient
  *
  */
+@Slf4j
 public class PrintTask extends SwingWorker<Void, Integer> {
     
     private final PrinterJob job;
@@ -50,8 +52,7 @@ public class PrintTask extends SwingWorker<Void, Integer> {
         try {
             get();
         } catch (ExecutionException e) {
-            MegaMekLab.getLogger().error(PrintTask.class, "done()",
-                    e.getCause());
+            log.error("Error", e);
         } catch (InterruptedException e) {
             // Shouldn't get here because we're done...
         }

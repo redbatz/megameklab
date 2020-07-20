@@ -23,6 +23,7 @@ import org.redbat.roguetech.megamek.common.util.EncodeControl;
 import org.redbat.roguetech.megamek.common.util.ImageUtil;
 import org.redbat.roguetech.megamek.common.util.MegaMekFile;
 import org.redbat.roguetech.megameklab.MegaMekLab;
+import org.redbat.roguetech.megameklab.data.DataManager;
 import org.redbat.roguetech.megameklab.ui.dialog.LoadingDialog;
 import org.redbat.roguetech.megameklab.util.RoguetechConfigurationDialog;
 import org.redbat.roguetech.megameklab.util.UnitUtil;
@@ -44,7 +45,6 @@ import static org.redbat.roguetech.megameklab.util.CConfig.isRoguetechConfigSet;
  */
 public class StartupGUI extends javax.swing.JPanel {
 
-    
     private static final long serialVersionUID = 8376874926997734492L;
     JFrame frame;
     Image imgSplash;
@@ -100,7 +100,15 @@ public class StartupGUI extends javax.swing.JPanel {
         } else {
             backgroundIcon = null;
         }
-        
+
+        while (!isRoguetechConfigSet()) {
+            if (openConfiguration()) {
+                System.exit(0);
+            }
+        }
+
+        DataManager.initialize();
+
         JLabel labVersion = new JLabel(resourceMap.getString("version.text") + MegaMekLab.VERSION, JLabel.CENTER); //$NON-NLS-1$
         labVersion.setPreferredSize(new Dimension(250,15));
         if (skinSpec.fontColors.size() > 0) {
@@ -232,12 +240,6 @@ public class StartupGUI extends javax.swing.JPanel {
         btnNewPbi.setEnabled(false);
         btnNewLargeCraft.setEnabled(false);
 
-        while (!isRoguetechConfigSet()) {
-            if (openConfiguration()) {
-                System.exit(0);
-            }
-        }
-
         // layout
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -344,7 +346,7 @@ public class StartupGUI extends javax.swing.JPanel {
     }
     
     private void loadUnit() {
-        EquipmentType.initializeTypes();
+        //EquipmentType.initializeTypes();
         UnitLoadingDialog unitLoadingDialog = new UnitLoadingDialog(frame);
         unitLoadingDialog.setVisible(true);
         UnitSelectorDialog viewer = new UnitSelectorDialog(frame, unitLoadingDialog, true);

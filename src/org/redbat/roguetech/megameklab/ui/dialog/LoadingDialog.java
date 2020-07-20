@@ -103,20 +103,10 @@ public class LoadingDialog extends JDialog {
             MegaMekLabMainUI newUI = null;
             if(type == Entity.ETYPE_TANK) {
                 newUI = new org.redbat.roguetech.megameklab.ui.Vehicle.MainUI();
-            } else if(type == Entity.ETYPE_SUPPORT_TANK) {
-                newUI = new org.redbat.roguetech.megameklab.ui.supportvehicle.SVMainUI();
-            } else if(type == Entity.ETYPE_PROTOMECH) {
+            }else if(type == Entity.ETYPE_PROTOMECH) {
                 newUI = new org.redbat.roguetech.megameklab.ui.protomek.ProtomekMainUI();
             } else if(type == Entity.ETYPE_BATTLEARMOR) {
                 newUI = new org.redbat.roguetech.megameklab.ui.BattleArmor.MainUI();
-            } else if(type == Entity.ETYPE_INFANTRY) {
-                newUI = new org.redbat.roguetech.megameklab.ui.Infantry.MainUI();
-            } else if(type == Entity.ETYPE_AERO) {
-                newUI = new org.redbat.roguetech.megameklab.ui.Aero.MainUI(primitive);
-            } else if(type == Entity.ETYPE_DROPSHIP) {
-                newUI = new org.redbat.roguetech.megameklab.ui.aerospace.DropshipMainUI(primitive);
-            } else if(type == Entity.ETYPE_JUMPSHIP) {
-                newUI = new org.redbat.roguetech.megameklab.ui.aerospace.AdvancedAeroUI(primitive);
             } else {
                 newUI = new org.redbat.roguetech.megameklab.ui.Mek.MainUI(primitive, industrial);
             }

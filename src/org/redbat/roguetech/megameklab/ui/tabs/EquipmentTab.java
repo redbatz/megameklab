@@ -13,10 +13,12 @@
  */
 package org.redbat.roguetech.megameklab.ui.tabs;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megamek.common.*;
 import org.redbat.roguetech.megamek.common.verifier.TestEntity;
 import org.redbat.roguetech.megamek.common.weapons.tag.TAGWeapon;
-import org.redbat.roguetech.megameklab.MegaMekLab;
+import org.redbat.roguetech.megameklab.data.DataManager;
+import org.redbat.roguetech.megameklab.data.type.DataType;
 import org.redbat.roguetech.megameklab.ui.EntitySource;
 import org.redbat.roguetech.megameklab.util.*;
 
@@ -29,7 +31,6 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -40,6 +41,7 @@ import java.util.function.Function;
  * @author Neoancient
  *
  */
+@Slf4j
 public class EquipmentTab extends ITab implements ActionListener {
     
     private static final long serialVersionUID = -7898648511851487701L;
@@ -180,7 +182,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         }
         masterEquipmentTable.setRowSorter(equipmentSorter);
         ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
-        sortKeys.add(new RowSorter.SortKey(EquipmentTableModel.COL_NAME, SortOrder.ASCENDING));
+        sortKeys.add(new RowSorter.SortKey(EquipmentTableModel.COL_ID, SortOrder.ASCENDING));
         equipmentSorter.setSortKeys(sortKeys);
         XTableColumnModel equipColumnModel = new XTableColumnModel();
         masterEquipmentTable.setColumnModel(equipColumnModel);
@@ -223,14 +225,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         masterEquipmentTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "add");
         masterEquipmentTable.getActionMap().put("add", new EnterAction());
 
-        Enumeration<EquipmentType> miscTypes = EquipmentType.getAllTypes();
-        ArrayList<EquipmentType> allTypes = new ArrayList<>();
-        while (miscTypes.hasMoreElements()) {
-            EquipmentType eq = miscTypes.nextElement();
-            allTypes.add(eq);
-        }
-
-        masterEquipmentList.setData(allTypes);
+        masterEquipmentList.setData(DataManager.getAll(DataType.EQUIPMENT));
 
         loadEquipmentTable();
 
@@ -537,8 +532,7 @@ public class EquipmentTab extends ITab implements ActionListener {
                 }
             }
         } catch (LocationFullException ex) {
-            MegaMekLab.getLogger().error(getClass(), "addEquipment(EquipmentType)",
-                    "Location full while trying to add " + equip.getName());
+            log.error("Location full while trying to add {}", equip.getName());
             JOptionPane.showMessageDialog(
                     this,"Could not add " + equip.getName(),
                     "Location Full", JOptionPane.ERROR_MESSAGE);
@@ -672,7 +666,7 @@ public class EquipmentTab extends ITab implements ActionListener {
     private void setEquipmentView() {
         XTableColumnModel columnModel = (XTableColumnModel)masterEquipmentTable.getColumnModel();
         if(rbtnStats.isSelected()) {
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_NAME), true);
+            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_ID), true);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DAMAGE), true);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DIVISOR), false);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SPECIAL), false);
@@ -695,7 +689,7 @@ public class EquipmentTab extends ITab implements ActionListener {
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_CRIT), true);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_REF), true);
         } else {
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_NAME), true);
+            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_ID), true);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DAMAGE), false);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DIVISOR), false);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SPECIAL), false);

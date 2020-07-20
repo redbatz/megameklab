@@ -13,6 +13,7 @@
  */
 package org.redbat.roguetech.megameklab.ui.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megamek.common.*;
 import org.redbat.roguetech.megamek.common.weapons.bayweapons.BayWeapon;
 import org.redbat.roguetech.megameklab.MegaMekLab;
@@ -38,6 +39,7 @@ import java.util.StringJoiner;
  * @author Neoancient
  *
  */
+@Slf4j
 public class AeroBayTransferHandler extends TransferHandler {
     
     /**
@@ -78,9 +80,7 @@ public class AeroBayTransferHandler extends TransferHandler {
                 }
             }
         } catch (Exception ex) {
-            MegaMekLab.getLogger().error(AeroBayTransferHandler.class,
-                    "importData(TransferSupport)", //$NON-NLS-1$
-                    ex);
+            log.error("Error", ex);
             return false;
         }
         if (eqList.isEmpty()) {
@@ -248,9 +248,7 @@ public class AeroBayTransferHandler extends TransferHandler {
                 ((BayWeaponCriticalTree)source).removeExported((String)data.getTransferData(DataFlavor.stringFlavor),
                         action);
             } catch (Exception ex) {
-                MegaMekLab.getLogger().error(AeroBayTransferHandler.class,
-                        "exportDone(JComponent,Transferable,action", //$NON-NLS-1$
-                        ex);
+                log.error("Error", ex);
             }
         }
     }

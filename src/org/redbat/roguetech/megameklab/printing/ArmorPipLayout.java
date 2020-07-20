@@ -13,6 +13,7 @@
  */
 package org.redbat.roguetech.megameklab.printing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.util.SVGConstants;
 import org.redbat.roguetech.megamek.common.annotations.Nullable;
 import org.redbat.roguetech.megameklab.MegaMekLab;
@@ -50,6 +51,7 @@ import static org.redbat.roguetech.megameklab.printing.PrintRecordSheet.DEFAULT_
  * its own g element and adding {@code mml-multisection:true} to the parent g
  * element's style attribute.</p>
  */
+@Slf4j
 class ArmorPipLayout {
 
     /** Margin of error used for checking equality between floating point values */
@@ -244,20 +246,20 @@ class ArmorPipLayout {
                             && right <= bbox.right + PRECISION) {
                         return new Bounds(left, bbox.top, right, bbox.bottom);
                     } else {
-                        MegaMekLab.getLogger().error(getClass(), "parseGap(Rectangle2D, String)",
-                                "Gap is not contained within bounding rectangle in "
-                                        + rect.getAttributeNS(null, SVGConstants.SVG_ID_ATTRIBUTE));
+                        log.error(
+                                "Gap is not contained within bounding rectangle in {}",
+                                        rect.getAttributeNS(null, SVGConstants.SVG_ID_ATTRIBUTE));
                     }
                 } else {
-                    MegaMekLab.getLogger().error(getClass(), "parseGap(Rectangle2D, String)",
-                            "Incorrect number of parameters to "
-                                    + IdConstants.MML_GAP + " in "
-                                    + rect.getAttributeNS(null, SVGConstants.SVG_ID_ATTRIBUTE));
+                    log.error(
+                            "Incorrect number of parameters to {} in {}",
+                                    IdConstants.MML_GAP,
+                                    rect.getAttributeNS(null, SVGConstants.SVG_ID_ATTRIBUTE));
                 }
             } catch (NumberFormatException ex) {
-                MegaMekLab.getLogger().error(getClass(), "parseGap(Rectangle2D, String)",
-                    "NumberFormatException parsing gap parameters in "
-                            + rect.getAttributeNS(null, SVGConstants.SVG_ID_ATTRIBUTE));
+                log.error(
+                    "NumberFormatException parsing gap parameters in {}",
+                            rect.getAttributeNS(null, SVGConstants.SVG_ID_ATTRIBUTE));
             }
         }
         return null;

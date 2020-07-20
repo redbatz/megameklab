@@ -16,6 +16,7 @@
 
 package org.redbat.roguetech.megameklab.ui.Mek.tabs;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megamek.common.*;
 import org.redbat.roguetech.megamek.common.loaders.EntityLoadingException;
 import org.redbat.roguetech.megamek.common.verifier.TestEntity;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class StructureTab extends ITab implements MekBuildListener, ArmorAllocationListener {
     /**
      *
@@ -939,8 +941,7 @@ public class StructureTab extends ITab implements MekBuildListener, ArmorAllocat
                 // Since we're not changing the total count, there should always be enough prototype
                 // doubles to switch over.
                 if (i >= doubles.size()) {
-                    MegaMekLab.getLogger().warning(getClass(), "redistributePrototypeHS(int)",
-                            "Not enough prototype double heat sinks to switch to single");
+                    log.warn("Not enough prototype double heat sinks to switch to single");
                 }
                 UnitUtil.removeMounted(getMech(), doubles.get(i));
             }
@@ -954,8 +955,7 @@ public class StructureTab extends ITab implements MekBuildListener, ArmorAllocat
                     .collect(Collectors.toList());
             for (int i = 0; i < netChange; i++) {
                 if (i >= singles.size()) {
-                    MegaMekLab.getLogger().warning(getClass(), "redistributePrototypeHS(int)",
-                            "Not enough single heat sinks to switch to prototype double");
+                    log.warn("Not enough single heat sinks to switch to prototype double");
                 }
                 UnitUtil.removeMounted(getMech(), singles.get(i));
             }

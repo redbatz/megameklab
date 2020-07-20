@@ -18,6 +18,8 @@ package org.redbat.roguetech.megameklab.ui.Mek.tabs;
 
 import org.redbat.roguetech.megamek.common.*;
 import org.redbat.roguetech.megamek.common.weapons.artillery.ArtilleryWeapon;
+import org.redbat.roguetech.megameklab.data.DataManager;
+import org.redbat.roguetech.megameklab.data.type.DataType;
 import org.redbat.roguetech.megameklab.ui.EntitySource;
 import org.redbat.roguetech.megameklab.util.*;
 
@@ -31,7 +33,6 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 public class EquipmentTab extends ITab implements ActionListener {
@@ -141,7 +142,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         }
         masterEquipmentTable.setRowSorter(equipmentSorter);
         ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
-        sortKeys.add(new RowSorter.SortKey(EquipmentTableModel.COL_NAME, SortOrder.ASCENDING));
+        sortKeys.add(new RowSorter.SortKey(EquipmentTableModel.COL_ID, SortOrder.ASCENDING));
         equipmentSorter.setSortKeys(sortKeys);
         XTableColumnModel equipColumnModel = new XTableColumnModel();
         masterEquipmentTable.setColumnModel(equipColumnModel);
@@ -176,14 +177,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         masterEquipmentTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "add");
         masterEquipmentTable.getActionMap().put("add", new EnterAction());
 
-        Enumeration<EquipmentType> miscTypes = EquipmentType.getAllTypes();
-        ArrayList<EquipmentType> allTypes = new ArrayList<EquipmentType>();
-        while (miscTypes.hasMoreElements()) {
-            EquipmentType eq = miscTypes.nextElement();
-            allTypes.add(eq);
-        }
-
-        masterEquipmentList.setData(allTypes);
+        masterEquipmentList.setData(DataManager.getAll(DataType.EQUIPMENT));
 
         loadEquipmentTable();
 
@@ -193,11 +187,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         }
         choiceType.setModel(typeModel);
         choiceType.setSelectedIndex(0);
-        choiceType.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                filterEquipment();
-            }
-        });
+        choiceType.addActionListener(evt -> filterEquipment());
 
         txtFilter.setText("");
         txtFilter.setMinimumSize(new java.awt.Dimension(200, 28));
@@ -555,7 +545,12 @@ public class EquipmentTab extends ITab implements ActionListener {
                         return true;
                     }
                 }
-                return false;
+                if (txtFilter.getText().length() > 0) {
+                    String text = txtFilter.getText();
+                    return etype.getName().toLowerCase().contains(text.toLowerCase());
+                } else {
+                    return true;
+                }
             }
         };
         equipmentSorter.setRowFilter(equipmentTypeFilter);
@@ -564,7 +559,7 @@ public class EquipmentTab extends ITab implements ActionListener {
     public void setEquipmentView() {
         XTableColumnModel columnModel = (XTableColumnModel)masterEquipmentTable.getColumnModel();
         if(rbtnStats.isSelected()) {
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_NAME), true);
+            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_ID), true);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DAMAGE), true);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DIVISOR), false);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SPECIAL), false);
@@ -587,7 +582,7 @@ public class EquipmentTab extends ITab implements ActionListener {
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_CRIT), true);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_REF), true);
         } else {
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_NAME), true);
+            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_ID), true);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DAMAGE), false);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DIVISOR), false);
             columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SPECIAL), false);

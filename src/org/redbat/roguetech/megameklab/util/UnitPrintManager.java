@@ -16,6 +16,7 @@
 
 package org.redbat.roguetech.megameklab.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.pdfbox.io.MemoryUsageSetting;
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class UnitPrintManager {
 
     private static final ResourceBundle menuResources = ResourceBundle.getBundle("megameklab.resources.Menu", new EncodeControl());
@@ -253,8 +255,7 @@ public class UnitPrintManager {
             }
             merger.mergeDocuments(MemoryUsageSetting.setupTempFileOnly());
         } catch (TranscoderException | SAXException | IOException | ConfigurationException e) {
-            MegaMekLab.getLogger().error(UnitPrintManager.class,
-                    "exportUnits(List<Entity>, File, boolean)", e);
+            log.error("Error", e);
         }
     }
 

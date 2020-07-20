@@ -13,6 +13,7 @@
  */
 package org.redbat.roguetech.megameklab.printing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.anim.dom.SVGLocatableSupport;
 import org.apache.batik.util.SVGConstants;
 import org.redbat.roguetech.megamek.common.*;
@@ -22,6 +23,7 @@ import org.w3c.dom.Element;
 /**
  * Lays out a record sheet block for a single protomech
  */
+@Slf4j
 public class PrintProtomech extends PrintEntity {
 
     private final Protomech proto;
@@ -120,9 +122,7 @@ public class PrintProtomech extends PrintEntity {
                         }
                     }
                 } catch (NumberFormatException ex) {
-                    MegaMekLab.getLogger().warning(getClass(),
-                            "setTextField(String, String, boolean)",
-                            "Could not parse fieldWidth: " + fieldWidth);
+                    log.warn("Could not parse fieldWidth: {}", fieldWidth);
                 }
             }
         }

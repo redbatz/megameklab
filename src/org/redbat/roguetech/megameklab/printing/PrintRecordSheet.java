@@ -13,6 +13,7 @@
  */
 package org.redbat.roguetech.megameklab.printing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
@@ -66,6 +67,7 @@ import java.util.Calendar;
  * @author Neoancient
  *
  */
+@Slf4j
 public abstract class PrintRecordSheet implements Printable, IdConstants {
 
     public final static String DEFAULT_TYPEFACE = "Eurostile";
@@ -227,12 +229,10 @@ public abstract class PrintRecordSheet implements Printable, IdConstants {
             SAXDocumentFactory df = new SAXDocumentFactory(impl, parser);
             svgDocument = df.createDocument(f.toURI().toASCIIString(), is);
         } catch (Exception e) {
-            MegaMekLab.getLogger().error(PrintRecordSheet.class, METHOD_NAME, e);
+            log.error("Error", e);
         }
         if (null == svgDocument) {
-            MegaMekLab.getLogger().error(PrintRecordSheet.class, METHOD_NAME,
-                    "Failed to open SVG file! Path: data/images/recordsheets/"
-                            + filename);
+            log.error("Failed to open SVG file! Path: data/images/recordsheets/{}", filename);
         }
         return svgDocument;
     }
@@ -342,8 +342,7 @@ public abstract class PrintRecordSheet implements Printable, IdConstants {
             // If an image can't be rendered we'll log it and return an empty document in its place
             // rather than throwing an exception.
             public SVGDocument getBrokenLinkDocument(Element e, String url, String message) {
-                MegaMekLab.getLogger().log(PrintRecordSheet.class, "build()",
-                        LogLevel.WARNING, "Cannot render image: " + message);
+                log.warn("Cannot render image: {}", message);
                 DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
                 SVGDocument doc = (SVGDocument) impl.createDocument(svgNS, SVGConstants.SVG_SVG_TAG, null);
                 Element text = doc.createElementNS(svgNS, SVGConstants.SVG_TEXT_TAG);
@@ -436,9 +435,7 @@ public abstract class PrintRecordSheet implements Printable, IdConstants {
                                     SVGConstants.SVG_SPACING_AND_GLYPHS_VALUE);
                         }
                     } catch (NumberFormatException ex) {
-                        MegaMekLab.getLogger().warning(getClass(),
-                                "setTextField(String, String, boolean)",
-                                "Could not parse fieldWidth: " + fieldWidth);
+                        log.warn("Could not parse fieldWidth: {}", fieldWidth);
                     }
                 }
             }
@@ -819,11 +816,9 @@ public abstract class PrintRecordSheet implements Printable, IdConstants {
                     "data:" + mimeType + ";base64," + Base64.getEncoder().encodeToString(bytes.toByteArray()));
             canvas.appendChild(img);
         } catch (FileNotFoundException e) {
-            MegaMekLab.getLogger().log(PrintRecordSheet.class, METHOD_NAME, LogLevel.ERROR,
-                    "Fluff image file not found: " + imageFile.getPath());
+            log.error("Fluff image file not found: {}", imageFile.getPath());
         } catch (IOException e) {
-            MegaMekLab.getLogger().log(PrintRecordSheet.class, METHOD_NAME, LogLevel.ERROR,
-                    "Error reading fluff image file: " + imageFile.getPath());
+            log.error("Error reading fluff image file: {}", imageFile.getPath());
         }
     }
 

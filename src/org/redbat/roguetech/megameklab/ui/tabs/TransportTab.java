@@ -13,6 +13,7 @@
  */
 package org.redbat.roguetech.megameklab.ui.tabs;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megamek.common.*;
 import org.redbat.roguetech.megamek.common.util.EncodeControl;
 import org.redbat.roguetech.megamek.common.verifier.*;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
  * @author Neoancient
  *
  */
+@Slf4j
 public class TransportTab extends IView implements ActionListener, ChangeListener {
     
     private static final long serialVersionUID = 6288658666144030993L;
@@ -915,7 +917,7 @@ public class TransportTab extends IView implements ActionListener, ChangeListene
                   return true;
                }
             } catch (Exception e) {
-               MegaMekLab.getLogger().error(getClass(), "importData(TransferSupport)", e);
+               log.error("Error", e);
             }
             return false;
         }

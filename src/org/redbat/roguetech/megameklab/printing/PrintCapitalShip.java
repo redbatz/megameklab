@@ -13,6 +13,7 @@
  */
 package org.redbat.roguetech.megameklab.printing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.util.SVGConstants;
 import org.redbat.roguetech.megamek.common.Jumpship;
 import org.redbat.roguetech.megamek.common.SpaceStation;
@@ -33,6 +34,7 @@ import java.awt.geom.Rectangle2D;
  * @author Neoancient
  *
  */
+@Slf4j
 public class PrintCapitalShip extends PrintDropship {
 
     /** Default width for armor pip */
@@ -175,8 +177,7 @@ public class PrintCapitalShip extends PrintDropship {
             if (element instanceof SVGRectElement) {
                 printArmorRegion((SVGRectElement) element, ship.getOArmor(loc));
             } else {
-                MegaMekLab.getLogger().error(getClass(), "drawArmorStructurePips()",
-                        "No SVGRectElement found with id " + id);
+                log.error("No SVGRectElement found with id {}", id);
             }
         }
     }
