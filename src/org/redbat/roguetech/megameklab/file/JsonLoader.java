@@ -1,6 +1,8 @@
 package org.redbat.roguetech.megameklab.file;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megameklab.ui.util.JsonMapper;
 
@@ -11,13 +13,26 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class JsonLoader {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class JsonLoader {
 
+    private static JsonLoader instance;
+    private final Map<Path, JsonNode> nodeMap = new ConcurrentHashMap<>();
     private final JsonMapper jsonMapper = new JsonMapper();
 
-    private final static Map<Path, JsonNode> nodeMap = new ConcurrentHashMap<>();
+    private static JsonLoader getInstance() {
+        if (instance == null) {
+            instance = new JsonLoader();
+        }
+        return instance;
+    }
 
-    public JsonNode load(Path path, boolean useCachedValue) {
+    public static JsonNode load(Path path, boolean useCachedValue) {
+        JsonLoader instance = getInstance();
+        return instance.doLoad(path, useCachedValue);
+    }
+
+    private JsonNode doLoad(Path path, boolean useCachedValue) {
         if (useCachedValue && nodeMap.containsKey(path)) {
             return nodeMap.get(path);
         }

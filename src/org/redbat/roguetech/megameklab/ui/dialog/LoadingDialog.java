@@ -26,8 +26,8 @@ import java.util.TreeMap;
 
 /**
  * A loading dialog to display until the mainUI has loaded.
- * @author Taharqa
  *
+ * @author Taharqa
  */
 public class LoadingDialog extends JDialog {
 
@@ -35,29 +35,29 @@ public class LoadingDialog extends JDialog {
      *
      */
     private static final long serialVersionUID = -3454307876761238915L;
-    
+    /**
+     * A map of resolution widths to file names for the startup screen
+     */
+    private final TreeMap<Integer, String> loadScreenImages = new TreeMap<>();
     Task task;
     JFrame frame;
     long type;
     boolean primitive;
     boolean industrial;
     Entity newUnit;
-    
-    /** A map of resolution widths to file names for the startup screen */
-    private final TreeMap<Integer, String> loadScreenImages = new TreeMap<>();
+
     {
         loadScreenImages.put(0, "data/images/misc/mml_load_spooky_hd.jpg");
         loadScreenImages.put(1441, "data/images/misc/mml_load_spooky_fhd.jpg");
         loadScreenImages.put(1921, "data/images/misc/mml_load_spooky_uhd.jpg");
     }
-    
+
     /**
-     * 
-     * @param frame - the frame that created this which will be disposed once loading is complete
-     * @param type - the unit type to load the mainUI from, based on the types in StartupGUI.java
-     * @param primitive - is unit primitive
+     * @param frame      - the frame that created this which will be disposed once loading is complete
+     * @param type       - the unit type to load the mainUI from, based on the types in StartupGUI.java
+     * @param primitive  - is unit primitive
      * @param industrial - is unit industrial
-     * @param en - a specific <code>Entity</code> to load in rather than default
+     * @param en         - a specific <code>Entity</code> to load in rather than default
      */
     public LoadingDialog(JFrame frame, long type, boolean primitive, boolean industrial, Entity en) {
         super(frame, "MML Loading"); //$NON-NLS-1$
@@ -66,11 +66,11 @@ public class LoadingDialog extends JDialog {
         this.primitive = primitive;
         this.industrial = industrial;
         newUnit = en;
-        
+
         setUndecorated(true);
 
         // initialize loading image
-        Image imgSplash = getToolkit().getImage(loadScreenImages.floorEntry((int)MegaMekLab.calculateMaxScreenWidth()).getValue());
+        Image imgSplash = getToolkit().getImage(loadScreenImages.floorEntry((int) MegaMekLab.calculateMaxScreenWidth()).getValue());
 
         // wait for loading image to load completely
         MediaTracker tracker = new MediaTracker(frame);
@@ -101,18 +101,14 @@ public class LoadingDialog extends JDialog {
         @Override
         public Void doInBackground() {
             MegaMekLabMainUI newUI = null;
-            if(type == Entity.ETYPE_TANK) {
+            if (type == Entity.ETYPE_TANK) {
                 newUI = new org.redbat.roguetech.megameklab.ui.Vehicle.MainUI();
-            }else if(type == Entity.ETYPE_PROTOMECH) {
-                newUI = new org.redbat.roguetech.megameklab.ui.protomek.ProtomekMainUI();
-            } else if(type == Entity.ETYPE_BATTLEARMOR) {
-                newUI = new org.redbat.roguetech.megameklab.ui.BattleArmor.MainUI();
             } else {
                 newUI = new org.redbat.roguetech.megameklab.ui.Mek.MainUI(primitive, industrial);
             }
             setVisible(false);
             //update if we had a specific unit to load
-            if(null != newUnit) {
+            if (null != newUnit) {
                 UnitUtil.updateLoadedUnit(newUnit);
                 newUI.setEntity(newUnit);
                 newUI.reloadTabs();

@@ -22,7 +22,6 @@ import org.redbat.roguetech.megameklab.ui.MegaMekLabMainUI;
 import org.redbat.roguetech.megameklab.ui.Vehicle.tabs.BuildTab;
 import org.redbat.roguetech.megameklab.ui.Vehicle.tabs.EquipmentTab;
 import org.redbat.roguetech.megameklab.ui.Vehicle.tabs.StructureTab;
-import org.redbat.roguetech.megameklab.ui.tabs.FluffTab;
 import org.redbat.roguetech.megameklab.ui.tabs.PreviewTab;
 
 import javax.swing.*;
@@ -41,7 +40,6 @@ public class MainUI extends MegaMekLabMainUI {
     private EquipmentTab equipmentTab;
     private PreviewTab previewTab;
     private BuildTab buildTab;
-    private FluffTab fluffTab;
     private StatusBar statusbar;
 
     public MainUI() {
@@ -63,11 +61,9 @@ public class MainUI extends MegaMekLabMainUI {
         structureTab = new StructureTab(this);
         equipmentTab = new EquipmentTab(this);
         buildTab = new BuildTab(this, equipmentTab.getEquipmentList());
-        fluffTab = new FluffTab(this);
         structureTab.addRefreshedListener(this);
         equipmentTab.addRefreshedListener(this);
         buildTab.addRefreshedListener(this);
-        fluffTab.setRefreshedListener(this);
         statusbar.setRefreshListener(this);
         
         previewTab = new PreviewTab(this);
@@ -75,7 +71,6 @@ public class MainUI extends MegaMekLabMainUI {
         configPane.addTab("Structure/Armor", structureTab);
         configPane.addTab("Equipment", equipmentTab);
         configPane.addTab("Assign Criticals", buildTab);
-        configPane.addTab("Fluff", fluffTab);
         configPane.addTab("Preview", previewTab);
 
         masterPanel.add(configPane, BorderLayout.CENTER);

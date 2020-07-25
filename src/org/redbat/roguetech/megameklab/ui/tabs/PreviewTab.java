@@ -42,8 +42,8 @@ public class PreviewTab extends ITab {
         JTabbedPane panPreview = new JTabbedPane();
 
         panelMekView = new MechViewPanel();
-        panelMekView.setMinimumSize(new java.awt.Dimension(300, 500));
-        panelMekView.setPreferredSize(new java.awt.Dimension(300, 600));
+        panelMekView.setMinimumSize(new java.awt.Dimension(500, 500));
+        panelMekView.setPreferredSize(new java.awt.Dimension(500, 600));
         panPreview.addTab("Summary", panelMekView);
         
         panelTROView = new MechViewPanel();

@@ -17,8 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.redbat.roguetech.megamek.common.*;
 import org.redbat.roguetech.megamek.common.verifier.TestEntity;
 import org.redbat.roguetech.megamek.common.weapons.tag.TAGWeapon;
+import org.redbat.roguetech.megameklab.data.ComponentManager;
 import org.redbat.roguetech.megameklab.data.DataManager;
-import org.redbat.roguetech.megameklab.data.type.DataType;
 import org.redbat.roguetech.megameklab.ui.EntitySource;
 import org.redbat.roguetech.megameklab.util.*;
 
@@ -37,94 +37,21 @@ import java.util.function.Function;
 
 /**
  * General purpose equipment tab
- * 
- * @author Neoancient
  *
+ * @author Neoancient
  */
 @Slf4j
 public class EquipmentTab extends ITab implements ActionListener {
-    
+
     private static final long serialVersionUID = -7898648511851487701L;
-
-    private enum EquipmentCategory {
-        ENERGY ("Energy", (eq, en) -> (eq instanceof WeaponType)
-                && !((WeaponType) eq).isCapital()
-                && (eq.hasFlag(WeaponType.F_ENERGY)
-                        || ((eq.hasFlag(WeaponType.F_PLASMA) && (((WeaponType) eq).getAmmoType() == AmmoType.T_PLASMA))))),
-        BALLISTIC ("Ballistic", (eq, en) -> (eq instanceof WeaponType)
-                && !((WeaponType) eq).isCapital()
-                && eq.hasFlag(WeaponType.F_BALLISTIC)),
-        MISSILE ("Missile", (eq, en) -> (eq instanceof WeaponType)
-                && !((WeaponType) eq).isCapital()
-                && eq.hasFlag(WeaponType.F_MISSILE)),
-        ARTILLERY ("Artillery", (eq, en) -> (eq instanceof WeaponType) && eq.hasFlag(WeaponType.F_ARTILLERY)),
-        CAPITAL ("Capital",
-                (eq, en) -> (eq instanceof WeaponType) && ((WeaponType) eq).isCapital(),
-                Entity::isLargeCraft),
-        PHYSICAL ("Physical", (eq, en) -> UnitUtil.isPhysicalWeapon(eq),
-                e -> e.hasETypeFlag(Entity.ETYPE_MECH) || e.hasETypeFlag(Entity.ETYPE_PROTOMECH)),
-        WEAPON ("All Weapons", (eq, en) -> ENERGY.filter(eq, en) || BALLISTIC.filter(eq, en)
-                || MISSILE.filter(eq, en) || CAPITAL.filter(eq, en) || PHYSICAL.filter(eq, en)),
-        AMMO ("Ammo", (eq, en) -> (eq instanceof AmmoType) && !(eq instanceof BombType)
-                && UnitUtil.canUseAmmo(en, (AmmoType) eq, false)),
-        OTHER ("Other", (eq, en) -> ((eq instanceof MiscType)
-                && !UnitUtil.isPhysicalWeapon(eq)
-                && !UnitUtil.isJumpJet(eq)
-                && !UnitUtil.isHeatSink(eq)
-                && !eq.hasFlag(MiscType.F_TSM)
-                && !eq.hasFlag(MiscType.F_INDUSTRIAL_TSM)
-                && !(eq.hasFlag(MiscType.F_MASC)
-                        && !eq.hasSubType(MiscType.S_SUPERCHARGER)
-                        && !eq.hasSubType(MiscType.S_JETBOOSTER))
-                && !(en.hasETypeFlag(Entity.ETYPE_QUADVEE) && eq.hasFlag(MiscType.F_TRACKS))
-                && !UnitUtil.isArmorOrStructure(eq)
-                && !eq.hasFlag(MiscType.F_CHASSIS_MODIFICATION)
-                && !(en.isSupportVehicle() && (eq.hasFlag(MiscType.F_BASIC_FIRECONTROL) || (eq.hasFlag(MiscType.F_ADVANCED_FIRECONTROL))))
-                && !eq.hasFlag(MiscType.F_MAGNETIC_CLAMP)
-                && !(eq.hasFlag(MiscType.F_PARTIAL_WING) && en.hasETypeFlag(Entity.ETYPE_PROTOMECH)))
-                && !eq.hasFlag(MiscType.F_SPONSON_TURRET)
-                && !eq.hasFlag(MiscType.F_PINTLE_TURRET)
-                || (eq instanceof TAGWeapon));
-
-        private final String displayName;
-        private final BiFunction<EquipmentType, Entity, Boolean> filter;
-        private final Function<Entity, Boolean> showForEntity;
-        
-        EquipmentCategory(String displayName, BiFunction<EquipmentType, Entity, Boolean> filter) {
-            this(displayName, filter, e -> true);
-        }
-        EquipmentCategory(String displayName,
-                BiFunction<EquipmentType, Entity, Boolean> filter,
-                Function<Entity, Boolean> showForEntity) {
-            this.displayName = displayName;
-            this.filter = filter;
-            this.showForEntity = showForEntity;
-        }
-        
-        public String getDisplayName() {
-            return displayName;
-        }
-        
-        public boolean show(Entity en) {
-            return showForEntity.apply(en);
-        }
-        
-        public boolean filter(EquipmentType eq, Entity en) {
-            return filter.apply(eq, en);
-        }
-    }
-    
-
+    private static final Dimension SPINNER_SIZE = new Dimension(55, 25);
+    final private JCheckBox chkShowAll = new JCheckBox("Show Unavailable");
     private RefreshListener refresh;
-
     private JButton addButton = new JButton("Add");
     private JButton removeButton = new JButton("Remove");
     private JButton removeAllButton = new JButton("Remove All");
     private JComboBox<EquipmentCategory> choiceType = new JComboBox<>();
     private JTextField txtFilter = new JTextField();
-
-    private JRadioButton rbtnStats = new JRadioButton("Stats");
-    final private JCheckBox chkShowAll = new JCheckBox("Show Unavailable");
     private JSpinner spnAddCount = new JSpinner(new SpinnerNumberModel(1, 1, null, 1));
 
     private TableRowSorter<EquipmentTableModel> equipmentSorter;
@@ -137,8 +64,6 @@ public class EquipmentTab extends ITab implements ActionListener {
     private String ADD_COMMAND = "ADD";
     private String REMOVE_COMMAND = "REMOVE";
     private String REMOVEALL_COMMAND = "REMOVEALL";
-
-    private static final Dimension SPINNER_SIZE = new Dimension(55, 25);
 
     public EquipmentTab(EntitySource eSource) {
         super(eSource);
@@ -212,7 +137,7 @@ public class EquipmentTab extends ITab implements ActionListener {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    JTable target = (JTable)e.getSource();
+                    JTable target = (JTable) e.getSource();
                     int view = target.getSelectedRow();
                     int selected = masterEquipmentTable.convertRowIndexToModel(view);
                     EquipmentType equip = masterEquipmentList.getType(selected);
@@ -225,7 +150,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         masterEquipmentTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "add");
         masterEquipmentTable.getActionMap().put("add", new EnterAction());
 
-        masterEquipmentList.setData(DataManager.getAll(DataType.EQUIPMENT));
+        masterEquipmentList.setData(ComponentManager.getAll());
 
         loadEquipmentTable();
 
@@ -245,15 +170,17 @@ public class EquipmentTab extends ITab implements ActionListener {
         txtFilter.setPreferredSize(new java.awt.Dimension(200, 28));
         txtFilter.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void changedUpdate(DocumentEvent e) {
-                filterEquipment();
-            }
-            @Override
             public void insertUpdate(DocumentEvent e) {
                 filterEquipment();
             }
+
             @Override
             public void removeUpdate(DocumentEvent e) {
+                filterEquipment();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
                 filterEquipment();
             }
         });
@@ -263,18 +190,9 @@ public class EquipmentTab extends ITab implements ActionListener {
         removeButton.setMnemonic('R');
         removeAllButton.setMnemonic('l');
 
-        ButtonGroup bgroupView = new ButtonGroup();
-        bgroupView.add(rbtnStats);
-        JRadioButton rbtnFluff = new JRadioButton("Fluff");
-        bgroupView.add(rbtnFluff);
 
-        rbtnStats.setSelected(true);
-        rbtnStats.addActionListener(ev -> setEquipmentView());
-        rbtnFluff.addActionListener(ev -> setEquipmentView());
         chkShowAll.addActionListener(ev -> filterEquipment());
-        JPanel viewPanel = new JPanel(new GridLayout(0,3));
-        viewPanel.add(rbtnStats);
-        viewPanel.add(rbtnFluff);
+        JPanel viewPanel = new JPanel(new GridLayout(0, 3));
         viewPanel.add(chkShowAll);
         setEquipmentView();
 
@@ -291,7 +209,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 1;
-        gbc.insets = new Insets(2,2,2,2);
+        gbc.insets = new Insets(2, 2, 2, 2);
         gbc.fill = java.awt.GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
@@ -325,7 +243,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        gbc.insets = new Insets(2,2,2,2);
+        gbc.insets = new Insets(2, 2, 2, 2);
         gbc.fill = java.awt.GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
@@ -335,7 +253,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        gbc.insets = new Insets(2,2,2,2);
+        gbc.insets = new Insets(2, 2, 2, 2);
         gbc.fill = java.awt.GridBagConstraints.NONE;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
@@ -360,7 +278,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         gbc.anchor = java.awt.GridBagConstraints.WEST;
         loadoutPanel.add(removeAllButton, gbc);
 
-        gbc.insets = new Insets(2,0,0,0);
+        gbc.insets = new Insets(2, 0, 0, 0);
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 4;
@@ -385,10 +303,6 @@ public class EquipmentTab extends ITab implements ActionListener {
         add(pane, BorderLayout.CENTER);
     }
 
-    public void addRefreshedListener(RefreshListener l) {
-        refresh = l;
-    }
-
     private void loadEquipmentTable() {
 
         for (Mounted mount : eSource.getEntity().getWeaponList()) {
@@ -402,86 +316,36 @@ public class EquipmentTab extends ITab implements ActionListener {
         List<EquipmentType> spreadAlreadyAdded = new ArrayList<>();
 
         for (Mounted mount : eSource.getEntity().getMisc()) {
-            
+
             EquipmentType etype = mount.getType();
             if (UnitUtil.isHeatSink(mount)
                     || etype.hasFlag(MiscType.F_JUMP_JET)
                     || etype.hasFlag(MiscType.F_JUMP_BOOSTER)
                     || etype.hasFlag(MiscType.F_TSM)
                     || etype.hasFlag(MiscType.F_INDUSTRIAL_TSM)
-                    || (etype.hasFlag(MiscType.F_MASC) 
-                            && !etype.hasSubType(MiscType.S_SUPERCHARGER)
-                            && !etype.hasSubType(MiscType.S_JETBOOSTER))
+                    || (etype.hasFlag(MiscType.F_MASC)
+                    && !etype.hasSubType(MiscType.S_SUPERCHARGER)
+                    && !etype.hasSubType(MiscType.S_JETBOOSTER))
                     || ((eSource.getEntity().getEntityType() & Entity.ETYPE_QUADVEE) == Entity.ETYPE_QUADVEE
-                        && etype.hasFlag(MiscType.F_TRACKS))
+                    && etype.hasFlag(MiscType.F_TRACKS))
                     || etype.hasFlag(MiscType.F_CHASSIS_MODIFICATION)
                     || UnitUtil.isArmorOrStructure(etype)) {
                 continue;
             }
             //if (UnitUtil.isUnitEquipment(mount.getType(), unit) || UnitUtil.isUn) {
-                if (UnitUtil.isFixedLocationSpreadEquipment(etype) 
-                        && !spreadAlreadyAdded.contains(etype)) {
-                    equipmentList.addCrit(mount);
-                    // keep track of spreadable equipment here, so it doesn't
-                    // show up multiple times in the table
-                    spreadAlreadyAdded.add(etype);
-                } else {
-                    equipmentList.addCrit(mount);
-                }
+            if (UnitUtil.isFixedLocationSpreadEquipment(etype)
+                    && !spreadAlreadyAdded.contains(etype)) {
+                equipmentList.addCrit(mount);
+                // keep track of spreadable equipment here, so it doesn't
+                // show up multiple times in the table
+                spreadAlreadyAdded.add(etype);
+            } else {
+                equipmentList.addCrit(mount);
+            }
             //}
         }
 
 
-    }
-
-    private void removeHeatSinks() {
-        int location = 0;
-        for (; location < equipmentList.getRowCount();) {
-
-            Mounted mount = (Mounted) equipmentList.getValueAt(location, CriticalTableModel.EQUIPMENT);
-            EquipmentType eq = mount.getType();
-            if ((eq instanceof MiscType) && (UnitUtil.isHeatSink(mount))) {
-                try {
-                    equipmentList.removeCrit(location);
-                } catch (ArrayIndexOutOfBoundsException aioobe) {
-                    return;
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                location++;
-            }
-        }
-    }
-
-    public void refresh() {
-        removeAllListeners();
-        filterEquipment();
-        updateEquipment();
-        addAllListeners();
-        fireTableRefresh();
-    }
-    
-    public void refreshTable() {
-        filterEquipment();
-    }
-
-    private void removeAllListeners() {
-        addButton.removeActionListener(this);
-        removeButton.removeActionListener(this);
-        removeAllButton.removeActionListener(this);
-    }
-
-    private void addAllListeners() {
-        addButton.addActionListener(this);
-        removeButton.addActionListener(this);
-        removeAllButton.addActionListener(this);
-        addButton.setActionCommand(ADD_COMMAND);
-        removeButton.setActionCommand(REMOVE_COMMAND);
-        removeAllButton.setActionCommand(REMOVEALL_COMMAND);
-        addButton.setMnemonic('A');
-        removeButton.setMnemonic('R');
-        removeAllButton.setMnemonic('L');
     }
 
     private void addEquipment(EquipmentType equip) {
@@ -504,7 +368,7 @@ public class EquipmentTab extends ITab implements ActionListener {
                 }
                 success = mount != null;
             } else {
-                int count = (Integer)spnAddCount.getValue();
+                int count = (Integer) spnAddCount.getValue();
                 if (equip instanceof AmmoType) {
                     if (eSource.getEntity().hasETypeFlag(Entity.ETYPE_PROTOMECH)) {
                         addProtomechAmmo(equip, count);
@@ -534,7 +398,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         } catch (LocationFullException ex) {
             log.error("Location full while trying to add {}", equip.getName());
             JOptionPane.showMessageDialog(
-                    this,"Could not add " + equip.getName(),
+                    this, "Could not add " + equip.getName(),
                     "Location Full", JOptionPane.ERROR_MESSAGE);
         }
         if (success) {
@@ -554,14 +418,14 @@ public class EquipmentTab extends ITab implements ActionListener {
             equipmentList.addCrit(mount);
         }
     }
-    
+
     private void addLargeCraftAmmo(EquipmentType ammo, int count) throws LocationFullException {
         Mounted aMount = UnitUtil.findUnallocatedAmmo(getAero(), ammo);
         if (null != aMount) {
-            aMount.setShotsLeft(aMount.getUsableShotsLeft() + ((AmmoType)ammo).getShots() * count);
+            aMount.setShotsLeft(aMount.getUsableShotsLeft() + ((AmmoType) ammo).getShots() * count);
         } else {
             Mounted mount = new Mounted(getAero(), ammo);
-            mount.setShotsLeft(((AmmoType)ammo).getShots() * count);
+            mount.setShotsLeft(((AmmoType) ammo).getShots() * count);
             getAero().addEquipment(mount, Entity.LOC_NONE, false);
             equipmentList.addCrit(mount);
         }
@@ -569,6 +433,7 @@ public class EquipmentTab extends ITab implements ActionListener {
 
     /**
      * Adds ammo to the correct location (body/fuselage) for aerospace and vehicles
+     *
      * @param equip The {@link AmmoType} to add
      * @param count The number of slots of ammo (usually tons)
      * @param loc   The location to add it
@@ -581,46 +446,6 @@ public class EquipmentTab extends ITab implements ActionListener {
             equipmentList.addCrit(mount);
         }
     }
-    
-    @Override
-    public void actionPerformed(ActionEvent e) {
-
-        if (e.getActionCommand().equals(ADD_COMMAND)) {
-            int view = masterEquipmentTable.getSelectedRow();
-            if(view < 0) {
-                //selection got filtered away
-                return;
-            }
-            int selected = masterEquipmentTable.convertRowIndexToModel(view);
-            EquipmentType equip = masterEquipmentList.getType(selected);
-            addEquipment(equip);
-        } else if (e.getActionCommand().equals(REMOVE_COMMAND)) {
-            int[] selectedRows = equipmentTable.getSelectedRows();
-            for (Integer row : selectedRows){
-                equipmentList.removeMounted(row);
-            }
-            equipmentList.removeCrits(selectedRows);
-        } else if (e.getActionCommand().equals(REMOVEALL_COMMAND)) {
-            removeAllEquipment();
-        } else {
-            return;
-        }
-        fireTableRefresh();
-    }
-
-    private void updateEquipment() {
-        removeHeatSinks();
-        equipmentList.removeAllCrits();
-        loadEquipmentTable();
-    }
-
-    private void removeAllEquipment() {
-        removeHeatSinks();
-        for (int count = 0; count < equipmentList.getRowCount(); count++) {
-            equipmentList.removeMounted(count);
-        }
-        equipmentList.removeAllCrits();
-    }
 
     private void fireTableRefresh() {
         equipmentList.updateUnit(eSource.getEntity());
@@ -631,10 +456,6 @@ public class EquipmentTab extends ITab implements ActionListener {
             refresh.refreshPreview();
             refresh.refreshSummary();
         }
-    }
-
-    public CriticalTableModel getEquipmentList() {
-        return equipmentList;
     }
 
     private void filterEquipment() {
@@ -664,53 +485,210 @@ public class EquipmentTab extends ITab implements ActionListener {
     }
 
     private void setEquipmentView() {
-        XTableColumnModel columnModel = (XTableColumnModel)masterEquipmentTable.getColumnModel();
-        if(rbtnStats.isSelected()) {
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_ID), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DAMAGE), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DIVISOR), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SPECIAL), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_HEAT), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_MRANGE), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_RANGE), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SHOTS), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TECH), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TLEVEL), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TRATING), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DPROTOTYPE), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DPRODUCTION), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DCOMMON), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DEXTINCT), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DREINTRO), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_COST), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_CREW), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_BV), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TON), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_CRIT), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_REF), true);
+        XTableColumnModel columnModel = (XTableColumnModel) masterEquipmentTable.getColumnModel();
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_ID), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DAMAGE), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DIVISOR), false);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SPECIAL), false);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_HEAT), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_MRANGE), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_RANGE), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SHOTS), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TECH), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_COST), false);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_BV), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TON), true);
+        columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_CRIT), true);
+
+    }
+
+    public void addRefreshedListener(RefreshListener l) {
+        refresh = l;
+    }
+
+    public void refresh() {
+        removeAllListeners();
+        filterEquipment();
+        updateEquipment();
+        addAllListeners();
+        fireTableRefresh();
+    }
+
+    private void removeAllListeners() {
+        addButton.removeActionListener(this);
+        removeButton.removeActionListener(this);
+        removeAllButton.removeActionListener(this);
+    }
+
+    private void addAllListeners() {
+        addButton.addActionListener(this);
+        removeButton.addActionListener(this);
+        removeAllButton.addActionListener(this);
+        addButton.setActionCommand(ADD_COMMAND);
+        removeButton.setActionCommand(REMOVE_COMMAND);
+        removeAllButton.setActionCommand(REMOVEALL_COMMAND);
+        addButton.setMnemonic('A');
+        removeButton.setMnemonic('R');
+        removeAllButton.setMnemonic('L');
+    }
+
+    private void updateEquipment() {
+        removeHeatSinks();
+        equipmentList.removeAllCrits();
+        loadEquipmentTable();
+    }
+
+    private void removeHeatSinks() {
+        int location = 0;
+        for (; location < equipmentList.getRowCount(); ) {
+
+            Mounted mount = (Mounted) equipmentList.getValueAt(location, CriticalTableModel.EQUIPMENT);
+            EquipmentType eq = mount.getType();
+            if ((eq instanceof MiscType) && (UnitUtil.isHeatSink(mount))) {
+                try {
+                    equipmentList.removeCrit(location);
+                } catch (ArrayIndexOutOfBoundsException aioobe) {
+                    return;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                location++;
+            }
+        }
+    }
+
+    public void refreshTable() {
+        filterEquipment();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getActionCommand().equals(ADD_COMMAND)) {
+            int view = masterEquipmentTable.getSelectedRow();
+            if (view < 0) {
+                //selection got filtered away
+                return;
+            }
+            int selected = masterEquipmentTable.convertRowIndexToModel(view);
+            EquipmentType equip = masterEquipmentList.getType(selected);
+            addEquipment(equip);
+        } else if (e.getActionCommand().equals(REMOVE_COMMAND)) {
+            int[] selectedRows = equipmentTable.getSelectedRows();
+            for (Integer row : selectedRows) {
+                equipmentList.removeMounted(row);
+            }
+            equipmentList.removeCrits(selectedRows);
+        } else if (e.getActionCommand().equals(REMOVEALL_COMMAND)) {
+            removeAllEquipment();
         } else {
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_ID), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DAMAGE), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DIVISOR), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SPECIAL), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_HEAT), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_MRANGE), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_RANGE), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_SHOTS), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TECH), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TLEVEL), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TRATING), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DPROTOTYPE), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DPRODUCTION), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DCOMMON), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DEXTINCT), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_DREINTRO), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_COST), true);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_CREW), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_BV), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_TON), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_CRIT), false);
-            columnModel.setColumnVisible(columnModel.getColumnByModelIndex(EquipmentTableModel.COL_REF), true);
+            return;
+        }
+        fireTableRefresh();
+    }
+
+    private void removeAllEquipment() {
+        removeHeatSinks();
+        for (int count = 0; count < equipmentList.getRowCount(); count++) {
+            equipmentList.removeMounted(count);
+        }
+        equipmentList.removeAllCrits();
+    }
+
+    public CriticalTableModel getEquipmentList() {
+        return equipmentList;
+    }
+
+    private enum EquipmentCategory {
+        ENERGY("Energy", (eq, en) -> (eq instanceof WeaponType)
+                && !((WeaponType) eq).isCapital()
+                && (eq.hasFlag(WeaponType.F_ENERGY)
+                || ((eq.hasFlag(WeaponType.F_PLASMA) && (((WeaponType) eq).getAmmoType() == AmmoType.T_PLASMA))))),
+        BALLISTIC("Ballistic", (eq, en) -> (eq instanceof WeaponType)
+                && !((WeaponType) eq).isCapital()
+                && eq.hasFlag(WeaponType.F_BALLISTIC)),
+        MISSILE("Missile", (eq, en) -> (eq instanceof WeaponType)
+                && !((WeaponType) eq).isCapital()
+                && eq.hasFlag(WeaponType.F_MISSILE)),
+        ARTILLERY("Artillery", (eq, en) -> (eq instanceof WeaponType) && eq.hasFlag(WeaponType.F_ARTILLERY)),
+        CAPITAL("Capital",
+                (eq, en) -> (eq instanceof WeaponType) && ((WeaponType) eq).isCapital(),
+                Entity::isLargeCraft),
+        PHYSICAL("Physical", (eq, en) -> UnitUtil.isPhysicalWeapon(eq),
+                e -> e.hasETypeFlag(Entity.ETYPE_MECH) || e.hasETypeFlag(Entity.ETYPE_PROTOMECH)),
+        WEAPON("All Weapons", (eq, en) -> ENERGY.filter(eq, en) || BALLISTIC.filter(eq, en)
+                || MISSILE.filter(eq, en) || CAPITAL.filter(eq, en) || PHYSICAL.filter(eq, en)),
+        AMMO("Ammo", (eq, en) -> (eq instanceof AmmoType) && !(eq instanceof BombType)
+                && UnitUtil.canUseAmmo(en, (AmmoType) eq, false)),
+        OTHER("Other", (eq, en) -> ((eq instanceof MiscType)
+                && !UnitUtil.isPhysicalWeapon(eq)
+                && !UnitUtil.isJumpJet(eq)
+                && !UnitUtil.isHeatSink(eq)
+                && !eq.hasFlag(MiscType.F_TSM)
+                && !eq.hasFlag(MiscType.F_INDUSTRIAL_TSM)
+                && !(eq.hasFlag(MiscType.F_MASC)
+                && !eq.hasSubType(MiscType.S_SUPERCHARGER)
+                && !eq.hasSubType(MiscType.S_JETBOOSTER))
+                && !(en.hasETypeFlag(Entity.ETYPE_QUADVEE) && eq.hasFlag(MiscType.F_TRACKS))
+                && !UnitUtil.isArmorOrStructure(eq)
+                && !eq.hasFlag(MiscType.F_CHASSIS_MODIFICATION)
+                && !(en.isSupportVehicle() && (eq.hasFlag(MiscType.F_BASIC_FIRECONTROL) || (eq.hasFlag(MiscType.F_ADVANCED_FIRECONTROL))))
+                && !eq.hasFlag(MiscType.F_MAGNETIC_CLAMP)
+                && !(eq.hasFlag(MiscType.F_PARTIAL_WING) && en.hasETypeFlag(Entity.ETYPE_PROTOMECH)))
+                && !eq.hasFlag(MiscType.F_SPONSON_TURRET)
+                && !eq.hasFlag(MiscType.F_PINTLE_TURRET)
+                || (eq instanceof TAGWeapon));
+
+        private final String displayName;
+        private final BiFunction<EquipmentType, Entity, Boolean> filter;
+        private final Function<Entity, Boolean> showForEntity;
+
+        EquipmentCategory(String displayName, BiFunction<EquipmentType, Entity, Boolean> filter) {
+            this(displayName, filter, e -> true);
+        }
+
+        EquipmentCategory(String displayName,
+                          BiFunction<EquipmentType, Entity, Boolean> filter,
+                          Function<Entity, Boolean> showForEntity) {
+            this.displayName = displayName;
+            this.filter = filter;
+            this.showForEntity = showForEntity;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public boolean show(Entity en) {
+            return showForEntity.apply(en);
+        }
+
+        public boolean filter(EquipmentType eq, Entity en) {
+            return filter.apply(eq, en);
+        }
+    }
+
+    private static class CategoryListCellRenderer extends JLabel implements ListCellRenderer<EquipmentCategory> {
+        private static final long serialVersionUID = -6019108605730297067L;
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends EquipmentCategory> list,
+                                                      EquipmentCategory value, int index, boolean isSelected, boolean cellHasFocus) {
+            setOpaque(list.isOpaque());
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());
+            } else {
+                setBackground(list.getBackground());
+                setForeground(list.getForeground());
+            }
+            setEnabled(list.isEnabled());
+            setFont(list.getFont());
+
+            setText(value.getDisplayName());
+
+            return this;
         }
     }
 
@@ -724,7 +702,7 @@ public class EquipmentTab extends ITab implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             int view = masterEquipmentTable.getSelectedRow();
-            if(view < 0) {
+            if (view < 0) {
                 //selection got filtered away
                 return;
             }
@@ -732,29 +710,6 @@ public class EquipmentTab extends ITab implements ActionListener {
             EquipmentType equip = masterEquipmentList.getType(selected);
             addEquipment(equip);
             fireTableRefresh();
-        }
-    }
-
-    private static class CategoryListCellRenderer extends JLabel implements ListCellRenderer<EquipmentCategory> {
-        private static final long serialVersionUID = -6019108605730297067L;
-        
-        @Override
-        public Component getListCellRendererComponent(JList<? extends EquipmentCategory> list,
-                EquipmentCategory value, int index, boolean isSelected, boolean cellHasFocus) {
-            setOpaque(list.isOpaque());
-            if (isSelected) {
-                setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
-            } else {
-                setBackground(list.getBackground());
-                setForeground(list.getForeground());
-            }
-            setEnabled(list.isEnabled());
-            setFont(list.getFont());
-
-            setText(value.getDisplayName());
-            
-            return this;
         }
     }
 

@@ -59,7 +59,7 @@ public class CriticalTableModel extends AbstractTableModel {
     private int tableType;
     private boolean kgStandard;
 
-    private String[] columnNames = { "Name", "Tons", "Crits"};
+    private String[] columnNames = { "Id", "Tons", "Crits"};
 
     private String[] longValues = { "XXXXXXXXX", "XXXXXXXXX", "XXXXXXXXX"};
 
@@ -75,7 +75,7 @@ public class CriticalTableModel extends AbstractTableModel {
         if (tableType == WEAPONTABLE) {
             longValues = new String[] { "XXXXXXXXX", "XXXXXXXXX", "XXXXXXXXX",
                     "XXXXXXXXX", "XXX", "XXXX" };
-            columnNames = new String[] { "Name", "Tons", "Slots", "Heat", 
+            columnNames = new String[] { "Id", "Tons", "Slots", "Heat",
                     "Loc", "Size" };
         }
         

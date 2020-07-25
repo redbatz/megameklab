@@ -49,7 +49,7 @@ public class StartupGUI extends javax.swing.JPanel {
     JFrame frame;
     Image imgSplash;
     BufferedImage backgroundIcon;
-    
+
     /** A map of resolution widths to file names for the startup screen */
     private final TreeMap<Integer, String> startupScreenImages = new TreeMap<>();
     {
@@ -57,20 +57,20 @@ public class StartupGUI extends javax.swing.JPanel {
         startupScreenImages.put(1441, "data/images/misc/mml_start_spooky_fhd.jpg");
         startupScreenImages.put(1921, "data/images/misc/mml_start_spooky_uhd.jpg");
     }
-    
+
     private final ResourceBundle resourceMap = ResourceBundle.getBundle("megameklab.resources.Splash", new EncodeControl());
-    
-    public StartupGUI() {       
+
+    public StartupGUI() {
         initComponents();
     }
 
     private void initComponents() {
         SkinSpecification skinSpec = SkinXMLHandler.getSkin(SkinSpecification.UIComponents.MainMenuBorder.getComp(),
                 true);
-        
+
         frame = new JFrame("Roguetech MegaMekLab");
         setBackground(UIManager.getColor("controlHighlight"));
-        
+
         imgSplash = getToolkit().getImage(startupScreenImages.floorEntry((int)MegaMekLab.calculateMaxScreenWidth()).getValue());
         // wait for splash image to load completely
         MediaTracker tracker = new MediaTracker(frame);
@@ -80,12 +80,12 @@ public class StartupGUI extends javax.swing.JPanel {
         } catch (InterruptedException e) {
             // really should never come here
         }
-        
+
         // make splash image panel
         ImageIcon icon = new ImageIcon(imgSplash);
         JLabel panTitle = new JLabel(icon);
         add(panTitle, BorderLayout.CENTER);
-        
+
         if (skinSpec.hasBackgrounds()) {
             if (skinSpec.backgrounds.size() > 1) {
                 File file = new MegaMekFile(Configuration.widgetsDir(),
@@ -122,7 +122,7 @@ public class StartupGUI extends javax.swing.JPanel {
                 openConfiguration();
             }
         });
-        
+
         MegamekButton btnLoadUnit = new MegamekButton(resourceMap.getString("btnLoadUnit.text"), //$NON-NLS-1$
                 SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
         btnLoadUnit.addActionListener(new java.awt.event.ActionListener() {
@@ -130,7 +130,7 @@ public class StartupGUI extends javax.swing.JPanel {
                 loadUnit();
             }
         });
-        
+
         MegamekButton btnNewMek = new MegamekButton(resourceMap.getString("btnNewMek.text"), //$NON-NLS-1$
                 SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
         btnNewMek.addActionListener(new java.awt.event.ActionListener() {
@@ -138,7 +138,7 @@ public class StartupGUI extends javax.swing.JPanel {
                 newUnit(Entity.ETYPE_MECH);
             }
         });
-        
+
         MegamekButton btnNewVee = new MegamekButton(resourceMap.getString("btnNewVee.text"), //$NON-NLS-1$
                 SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
         btnNewVee.addActionListener(new java.awt.event.ActionListener() {
@@ -146,38 +146,7 @@ public class StartupGUI extends javax.swing.JPanel {
                 newUnit(Entity.ETYPE_TANK);
             }
         });
-        
-        MegamekButton btnNewSupportVee = new MegamekButton(resourceMap.getString("btnNewSupportVee.text"), //$NON-NLS-1$
-                SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
 
-        MegamekButton btnNewBA = new MegamekButton(resourceMap.getString("btnNewBA.text"), //$NON-NLS-1$
-                SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
-//        btnNewBA.addActionListener(new java.awt.event.ActionListener() {
-//            public void actionPerformed(java.awt.event.ActionEvent evt) {
-//                newUnit(Entity.ETYPE_BATTLEARMOR);
-//            }
-//        });
-
-        MegamekButton btnNewAero = new MegamekButton(resourceMap.getString("btnNewAero.text"), //$NON-NLS-1$
-                SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
-        MegamekButton btnNewDropper = new MegamekButton(resourceMap.getString("btnNewDropper.text"), //$NON-NLS-1$
-                SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
-
-        MegamekButton btnNewLargeCraft = new MegamekButton(resourceMap.getString("btnNewLargeCraft.text"), //$NON-NLS-1$
-                SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
-
-        MegamekButton btnNewProto = new MegamekButton(resourceMap.getString("btnNewProto.text"), //$NON-NLS-1$
-                SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
-//        btnNewProto.addActionListener(new java.awt.event.ActionListener() {
-//            public void actionPerformed(java.awt.event.ActionEvent evt) {
-//                newUnit(Entity.ETYPE_PROTOMECH);
-//            }
-//        });
-        
-        MegamekButton btnNewPbi = new MegamekButton(resourceMap.getString("btnNewPbi.text"), //$NON-NLS-1$
-                SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
-
-        
         MegamekButton btnQuit = new MegamekButton(resourceMap.getString("btnQuit.text"), //$NON-NLS-1$
                 SkinSpecification.UIComponents.MainMenuButton.getComp(), true);
         btnQuit.addActionListener(new java.awt.event.ActionListener() {
@@ -185,12 +154,12 @@ public class StartupGUI extends javax.swing.JPanel {
                 System.exit(0);
             }
         });
-        
+
         // Use the current monitor so we don't "overflow" computers whose primary
         // displays aren't as large as their secondary displays.
         DisplayMode currentMonitor = frame.getGraphicsConfiguration().getDevice().getDisplayMode();
-        FontMetrics metrics = btnNewDropper.getFontMetrics(btnNewDropper.getFont());
-        int width = metrics.stringWidth(btnNewDropper.getText());
+        FontMetrics metrics = btnNewVee.getFontMetrics(btnNewVee.getFont());
+        int width = metrics.stringWidth(btnNewVee.getText());
         int height = metrics.getHeight();
         Dimension textDim =  new Dimension(width+50, height+10);
 
@@ -206,7 +175,7 @@ public class StartupGUI extends javax.swing.JPanel {
         if (textDim.getWidth() > minButtonDim.getWidth()) {
             minButtonDim = textDim;
         }
-        
+
         btnConfiguration.setMinimumSize(minButtonDim);
         btnConfiguration.setPreferredSize(minButtonDim);
         btnLoadUnit.setMinimumSize(minButtonDim);
@@ -215,30 +184,10 @@ public class StartupGUI extends javax.swing.JPanel {
         btnNewMek.setPreferredSize(minButtonDim);
         btnNewVee.setMinimumSize(minButtonDim);
         btnNewVee.setPreferredSize(minButtonDim);
-        btnNewSupportVee.setMinimumSize(minButtonDim);
-        btnNewSupportVee.setPreferredSize(minButtonDim);
-        btnNewBA.setMinimumSize(minButtonDim);
-        btnNewBA.setPreferredSize(minButtonDim);
-        btnNewAero.setMinimumSize(minButtonDim);
-        btnNewAero.setPreferredSize(minButtonDim);
-        btnNewDropper.setMinimumSize(minButtonDim);
-        btnNewDropper.setPreferredSize(minButtonDim);
-        btnNewLargeCraft.setMinimumSize(minButtonDim);
-        btnNewLargeCraft.setPreferredSize(minButtonDim);
-        btnNewPbi.setMinimumSize(minButtonDim);
-        btnNewPbi.setPreferredSize(minButtonDim);
-        btnNewProto.setMinimumSize(minButtonDim);
-        btnNewProto.setPreferredSize(minButtonDim);
         btnQuit.setMinimumSize(minButtonDim);
         btnQuit.setPreferredSize(minButtonDim);
 
-        btnNewBA.setEnabled(false);
-        btnNewProto.setEnabled(false);
-        btnNewSupportVee.setEnabled(false);
-        btnNewAero.setEnabled(false);
-        btnNewDropper.setEnabled(false);
-        btnNewPbi.setEnabled(false);
-        btnNewLargeCraft.setEnabled(false);
+        btnNewVee.setEnabled(false);
 
         // layout
         setLayout(new GridBagLayout());
@@ -261,31 +210,21 @@ public class StartupGUI extends javax.swing.JPanel {
         c.gridheight = 1;
         c.gridx = 1; c.gridy = 0;
         add(labVersion, c);
+        c.insets = new Insets(5, 2, 2, 10);
         c.gridy++;
         add(btnConfiguration, c);
+        c.insets = new Insets(20, 2, 2, 10);
         c.gridy++;
         add(btnLoadUnit, c);
+        c.insets = new Insets(2, 2, 2, 10);
         c.gridy++;
         add(btnNewMek, c);
         c.gridy++;
         add(btnNewVee, c);
+        c.insets = new Insets(100, 2, 2, 10);
         c.gridy++;
-//        add(btnNewSupportVee, c);
-//        c.gridy++;
-        add(btnNewProto, c);
-        c.gridy++;
-        add(btnNewBA, c);
-        c.gridy++;
-//        add(btnNewPbi, c);
-//        c.gridy++;
-//        add(btnNewAero, c);
-//        c.gridy++;
-//        add(btnNewDropper, c);
-//        c.gridy++;
-//        add(btnNewLargeCraft, c);
-//        c.gridy++;
         add(btnQuit, c);
-        
+
         frame.setResizable(false);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(this, BorderLayout.CENTER);
@@ -298,14 +237,14 @@ public class StartupGUI extends javax.swing.JPanel {
         });
         frame.validate();
         frame.pack();
-        
+
         // Determine the location of the window
         int w = frame.getSize().width;
         int h = frame.getSize().height;
         int x = (currentMonitor.getWidth()-w)/2;
         int y = (currentMonitor.getHeight()-h)/2;
         frame.setLocation(x, y);
-        
+
         frame.setVisible(true);
     }
 
@@ -331,20 +270,20 @@ public class StartupGUI extends javax.swing.JPanel {
      }
 
     /**
-     * This function will create a new mainUI frame (via the loading dialog) for the 
+     * This function will create a new mainUI frame (via the loading dialog) for the
      * given unit type and get rid of the splash screen
      * @param type an <code>int</code> corresponding to the unit type to construct
      */
     private void newUnit(long type) {
         newUnit(type, false, false, null);
     }
-    
+
     private void newUnit(long type, boolean primitive, boolean industrial, Entity en) {
         frame.setVisible(false);
         LoadingDialog ld = new LoadingDialog(frame, type, primitive, industrial, en);
         ld.setVisible(true);
     }
-    
+
     private void loadUnit() {
         //EquipmentType.initializeTypes();
         UnitLoadingDialog unitLoadingDialog = new UnitLoadingDialog(frame);
@@ -365,27 +304,12 @@ public class StartupGUI extends javax.swing.JPanel {
                             UnitUtil.validateUnit(newUnit)));
         }
 
-        if (newUnit.isSupportVehicle()) {
-            newUnit(Entity.ETYPE_SUPPORT_TANK, false, false, newUnit);
-        } else if (newUnit.hasETypeFlag(Entity.ETYPE_SMALL_CRAFT)) {
-            newUnit(Entity.ETYPE_DROPSHIP, ((Aero)newUnit).isPrimitive(), false, newUnit);
-        } else if (newUnit.hasETypeFlag(Entity.ETYPE_JUMPSHIP)) {
-            newUnit(Entity.ETYPE_JUMPSHIP, ((Aero)newUnit).isPrimitive(), false, newUnit);
-        } else if ((newUnit instanceof Aero)
-                && !(newUnit instanceof FixedWingSupport)) {
-            newUnit(Entity.ETYPE_AERO, ((Aero)newUnit).isPrimitive(), false, newUnit);
-        } else if (newUnit instanceof BattleArmor) {
-            newUnit(Entity.ETYPE_BATTLEARMOR, false, false, newUnit);
-        } else if (newUnit instanceof Infantry) {
-            newUnit(Entity.ETYPE_INFANTRY, false, false, newUnit);
-        } else if (newUnit instanceof Mech) {
+        if (newUnit instanceof Mech) {
             newUnit(Entity.ETYPE_MECH, false, false, newUnit);
-        } else if (newUnit instanceof Protomech) {
-            newUnit(Entity.ETYPE_PROTOMECH, false, false, newUnit);
         } else if ((newUnit instanceof Tank)
                 && !(newUnit instanceof GunEmplacement)) {
             newUnit(Entity.ETYPE_TANK, false, false, newUnit);
-        } 
+        }
         return;
     }
 

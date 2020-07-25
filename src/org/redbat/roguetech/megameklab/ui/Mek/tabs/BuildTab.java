@@ -27,6 +27,7 @@ import org.redbat.roguetech.megameklab.util.RefreshListener;
 import org.redbat.roguetech.megameklab.util.UnitUtil;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -73,10 +74,11 @@ public class BuildTab extends ITab implements ActionListener {
         buttonPanel.add(autoFillButton);
         buttonPanel.add(resetButton);
         buttonPanel.add(compactButton);
+        buttonPanel.setBorder(new EmptyBorder(0, 3, 1, 0));
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -86,6 +88,10 @@ public class BuildTab extends ITab implements ActionListener {
         gbc.weighty = 0.0;
         mainPanel.add(buttonPanel, gbc);
         this.add(critView);
+        gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
         this.add(mainPanel);
         refresh();
     }

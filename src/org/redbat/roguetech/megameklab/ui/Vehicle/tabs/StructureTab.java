@@ -402,7 +402,7 @@ public class StructureTab extends ITab implements CVBuildListener, ArmorAllocati
             panArmorAllocation.showPatchwork(true);
             panPatchwork.setVisible(true);
         }
-        panArmor.setFromEntity(getTank(), true);
+        panArmor.setFromEntity(getTank());
         panArmorAllocation.setFromEntity(getTank());
         panSummary.refresh();
         refresh.refreshStatus();
@@ -694,7 +694,7 @@ public class StructureTab extends ITab implements CVBuildListener, ArmorAllocati
         if (panArmor.getArmorType() == EquipmentType.T_ARMOR_PATCHWORK) {
             getTank().setArmorTonnage(panArmorAllocation.getTotalArmorWeight(getTank()));
         }
-        panArmor.setFromEntity(getTank(), true);
+        panArmor.setFromEntity(getTank());
         panArmorAllocation.setFromEntity(getTank());
         refresh.refreshPreview();
         refresh.refreshSummary();
@@ -798,7 +798,7 @@ public class StructureTab extends ITab implements CVBuildListener, ArmorAllocati
                 }
             }
         }
-        panArmor.setFromEntity(getTank(), true);
+        panArmor.setFromEntity(getTank());
         panArmorAllocation.setFromEntity(getTank());
         refresh.refreshBuild();
         refresh.refreshPreview();
